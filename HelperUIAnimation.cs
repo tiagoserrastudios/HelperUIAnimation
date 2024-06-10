@@ -17,8 +17,8 @@ public class HelperUIAnimation : MonoBehaviour
     //Effects Time and wait
     public float slideDuration = 1.0f; //How long it takes for the slide to complete
     public float fadeDuration = 1.0f; //How long it takes for fade to complete
-    public float waitSlide = 1.0f; //How long since active to activate slide
-    public float waitFade = 1.0f;  //How long since ACTIVE to activate fade
+    public float waitSlide = 0.0f; //How long since active to activate slide
+    public float waitFade = 0.0f;  //How long since ACTIVE to activate fade
 
     private RectTransform rectTransform;// Reference to the component attributed on Start
     private Vector2 originalPosition; // Reference to the original position of the UI
