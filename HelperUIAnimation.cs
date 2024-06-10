@@ -34,13 +34,11 @@ public class HelperUIAnimation : MonoBehaviour
     }
 
     IEnumerator AnimateUI()
-    {
-        // Wait
-        yield return new WaitForSeconds(waitSlide + waitFade);
-
+    {        
         // if Slide is selected from Dropdown
         if (slideDirection != SlideDirection.None)
         {
+            yield return new WaitForSeconds(waitSlide); // wait to animate
             Vector2 offscreenPosition = CalculateOffscreenPosition(slideDirection);
             float elapsedTime = 0f;
 
@@ -64,6 +62,7 @@ public class HelperUIAnimation : MonoBehaviour
             //Logic to Handle Fade using Lerp to go from Start to target Alphas taking into account the duratiion
             while (elapsedTime < fadeDuration)
             {
+                yield return new WaitForSeconds(waitFade); // wait to animate
                 float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, elapsedTime / fadeDuration);
                 
                 if (affecting == Affecting.Text) // it parent is Text  i think it only works with legacy tho
