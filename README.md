@@ -7,4 +7,6 @@ Options
   SlideDirection { None, FromTop, FromBottom, FromLeft, FromRight, ToTop, ToBottom, ToLeft, ToRight }
   FadeEffect { None, FadeIn, FadeOut }
 
+Dosent Matter your what screen Resolution you are using, it ll recalculate whenever the the parent gets activated
+
 
