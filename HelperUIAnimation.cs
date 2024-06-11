@@ -8,6 +8,7 @@ public class HelperUIAnimation : MonoBehaviour
     public enum SlideDirection { None, FromTop, FromBottom, FromLeft, FromRight, ToTop, ToBottom, ToLeft, ToRight }//Slide Type
     public enum FadeEffect { None, FadeIn, FadeOut } // Fade Type
     public enum Affecting { Text, Image }//Select in Inspector which type is  the parent of this script
+
     
     //Assign in Inspector aka choose the effects
     public SlideDirection slideDirection = SlideDirection.None; //Select in Inspector which if you want slide
@@ -20,39 +21,57 @@ public class HelperUIAnimation : MonoBehaviour
     public float waitSlide = 0.0f; //How long since active to activate slide
     public float waitFade = 0.0f;  //How long since ACTIVE to activate fade
 
-    private RectTransform rectTransform;// Reference to the component attributed on Start
-    private Vector2 originalPosition; // Reference to the original position of the UI
+    private RectTransform elementToAnimate;// Reference to the component attributed on Start
+    private RectTransform canvasRectTransform;// Reference to the component attributed on Start
+    private Vector2 ElementOriginalPos; // Reference to the original position of the UI
+    private Canvas canvas;
+    float canvasWidth; // Canvas Width
+    float canvasHeight;// Canvas Height
+
+
 
     void Start()
     {
+        // Set Canvas and Get its component
+        canvas = GetComponentInParent<Canvas>();
+        canvasRectTransform = canvas.GetComponent<RectTransform>();
         //Get Component and  Original Position
-        rectTransform = GetComponent<RectTransform>();
-        originalPosition = rectTransform.anchoredPosition;
-
+        elementToAnimate = GetComponent<RectTransform>();
+        ElementOriginalPos = elementToAnimate.anchoredPosition;
+        // Get Canvas Values
+        canvasWidth = canvasRectTransform.rect.width;
+        canvasHeight = canvasRectTransform.rect.height;
         //Coroutine animation so Yields work smoothly
         StartCoroutine(AnimateUI()); // Start Animating
     }
 
     IEnumerator AnimateUI()
-    {        
+    {
         // if Slide is selected from Dropdown
         if (slideDirection != SlideDirection.None)
         {
-            yield return new WaitForSeconds(waitSlide); // wait to animate
+            yield return new WaitForSeconds(waitSlide);// wait to animate
             Vector2 offscreenPosition = CalculateOffscreenPosition(slideDirection);
             float elapsedTime = 0f;
-
+            string sourcePosition;
+            string targetPosition;
+            //While timer dosent reach timer
             while (elapsedTime < slideDuration)
             {
-                rectTransform.anchoredPosition = Vector2.Lerp(offscreenPosition, originalPosition, elapsedTime / slideDuration);
+                if (slideDirection != SlideDirection.ToTop && slideDirection != SlideDirection.ToRight && slideDirection != SlideDirection.ToBottom && slideDirection != SlideDirection.ToLeft)
+                { 
+                elementToAnimate.anchoredPosition = Vector2.Lerp(offscreenPosition, ElementOriginalPos, elapsedTime / slideDuration);
+                }
+                else
+                {
+                 elementToAnimate.anchoredPosition = Vector2.Lerp(ElementOriginalPos, offscreenPosition, elapsedTime / slideDuration);
+                }
                 elapsedTime += Time.deltaTime;
                 yield return null; // wait for next frame
             }
-
-            rectTransform.anchoredPosition = originalPosition; // Ensure precise final position
+            elementToAnimate.anchoredPosition = ElementOriginalPos; // Ensure precise final position
         }
-
-        // if  fade is selected from Dropdown
+         // if  fade is selected from Dropdown
         if (fadeEffect != FadeEffect.None)
         {
             // you may  want to change logic here  to handle alphas and set absolute values
@@ -83,22 +102,25 @@ public class HelperUIAnimation : MonoBehaviour
     // Calculating Screen Offsets (pretty much self Explanatory)
     Vector2 CalculateOffscreenPosition(SlideDirection direction)
     {
+
         switch (direction)
         {
-            case SlideDirection.FromTop:
             case SlideDirection.ToTop:
-                return new Vector2(originalPosition.x, originalPosition.y + rectTransform.rect.height);
-            case SlideDirection.FromBottom:
+            case SlideDirection.FromTop: 
+                return new Vector2(ElementOriginalPos.x, canvasHeight / 2 + elementToAnimate.rect.height / 2);
             case SlideDirection.ToBottom:
-                return new Vector2(originalPosition.x, originalPosition.y - rectTransform.rect.height);
-            case SlideDirection.FromLeft:
+            case SlideDirection.FromBottom: 
+                return new Vector2(ElementOriginalPos.x, -canvasHeight / 2 - elementToAnimate.rect.height / 2);
             case SlideDirection.ToLeft:
-                return new Vector2(originalPosition.x - rectTransform.rect.width, originalPosition.y);
-            case SlideDirection.FromRight:
+            case SlideDirection.FromLeft: 
+                return new Vector2(-canvasWidth / 2 - elementToAnimate.rect.width / 2, ElementOriginalPos.y);
             case SlideDirection.ToRight:
-                return new Vector2(originalPosition.x + rectTransform.rect.width, originalPosition.y);
-            default:
-                return originalPosition; 
+            case SlideDirection.FromRight: 
+                return new Vector2(canvasWidth / 2 + elementToAnimate.rect.width / 2, ElementOriginalPos.y);
+
+            default: 
+            return ElementOriginalPos;
         }
+
     }
 }
